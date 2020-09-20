@@ -5,8 +5,15 @@ from django.utils import timezone
 
 # Funciones
 # Retorna 15 dias despues
+
 def in_few_days():
     return timezone.now() + timedelta(days=15)
+
+def in_15_days():
+    return timezone.now() + timedelta(days=15)
+
+def in_7_days():
+    return timezone.now() + timedelta(days=7)
 
 # Models
 #################################################################################################################
@@ -41,8 +48,8 @@ class Documento(models.Model):
 
     class Meta:
         ordering = ['nombre']
-        verbose_name = 'nombre'
-        verbose_name_plural = 'nombres'
+        verbose_name = 'Documento'
+        verbose_name_plural = 'Documentos'
 
 
 #################################################################################################################
@@ -55,12 +62,19 @@ class Solicitud(models.Model):
 
     fecha_solicitud = models.DateTimeField(auto_now=True)
 
-    fecha_aprox = models.DateTimeField(default=in_few_days)
+    fecha_aprox = models.DateTimeField(null=True, blank=True)
 
     fecha_listo = models.DateTimeField(null=True, blank=True)
 
     on_off = models.BooleanField(
         default=True, verbose_name='Solicitud Activa:', help_text='Inglese el estado de la solicitud')
+
+    def save(self, *args, **kwargs):
+        if (self.id_documento.id == 1):
+            self.fecha_aprox = in_7_days()
+        else: 
+            self.fecha_aprox = in_15_days()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.correo
